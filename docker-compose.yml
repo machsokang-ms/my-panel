@@ -10,28 +10,24 @@ services:
       - "--providers.docker=true"
       - "--providers.docker.exposedbydefault=false"
       - "--entrypoints.web.address=:80"
-      - "--entrypoints.websecure.address=:443"
-      - "--certificatesresolvers.myresolver.acme.tlschallenge=true"
-      - "--certificatesresolvers.myresolver.acme.email=admin@example.com" # Change to your email
-      - "--certificatesresolvers.myresolver.acme.storage=/letsencrypt/acme.json"
     ports:
-      - "80:80"
-      - "443:443"
-      - "8080:8080" # Dashboard
+      - "81:80" # Map host port 81 to container 80
+      - "8080:8080" # Traefik Dashboard
     volumes:
-      - "/var/run/docker.sock:/var/run/docker.sock:ro"
-      - "./letsencrypt:/letsencrypt"
+      - /var/run/docker.sock:/var/run/docker.sock:ro
     networks:
       - my-panel-network
+    restart: always
 
-  # Backend API
+  # Backend Orchestrator
   api:
     build: ./backend
     container_name: my-panel-api
     volumes:
-      - "/var/run/docker.sock:/var/run/docker.sock"
+      - /var/run/docker.sock:/var/run/docker.sock
     environment:
-      - PORT=4000
+      - NODE_ENV=production
+      - JWT_SECRET=super-secret-key-123
     networks:
       - my-panel-network
     labels:
@@ -40,8 +36,9 @@ services:
       - "traefik.http.routers.api.entrypoints=web"
       - "traefik.http.services.api.loadbalancer.server.port=4000"
       - "traefik.http.routers.api.priority=10"
+    restart: always
 
-  # Frontend Web
+  # Frontend Dashboard
   web:
     build: ./frontend
     container_name: my-panel-web
@@ -53,6 +50,7 @@ services:
       - "traefik.http.routers.web.entrypoints=web"
       - "traefik.http.services.web.loadbalancer.server.port=3000"
       - "traefik.http.routers.web.priority=5"
+    restart: always
 
   # Panel Internal Database
   db:
@@ -66,6 +64,7 @@ services:
       - ./data/db:/var/lib/postgresql/data
     networks:
       - my-panel-network
+    restart: always
 
 networks:
   my-panel-network:
