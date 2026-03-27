@@ -25,7 +25,8 @@ import {
   Server,
   Github,
   GitBranch,
-  Search
+  Search,
+  LineChart
 } from "lucide-react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
@@ -128,6 +129,7 @@ function Navigation({ theme }: { theme: string }) {
   return (
     <nav className="flex-1 space-y-1">
       <SidebarItem icon={<LayoutDashboard size={18} />} label="Dashboard" href="/" theme={theme} />
+      <SidebarItem icon={<LineChart size={18} />} label="Monitoring" href="/monitoring" theme={theme} />
       <SidebarItem icon={<Server size={18} />} label="Servers" href="/servers" theme={theme} />
       <SidebarItem icon={<Package size={18} />} label="Applications" href="/apps" theme={theme} />
       <SidebarItem icon={<GitBranch size={18} />} label="Repositories" href="/repositories" theme={theme} />
