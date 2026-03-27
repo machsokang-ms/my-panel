@@ -22,7 +22,8 @@ import {
   Folder,
   Menu,
   X,
-  Server
+  Server,
+  Cloud
 } from "lucide-react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
@@ -128,6 +129,7 @@ function Navigation({ theme }: { theme: string }) {
       <SidebarItem icon={<Server size={18} />} label="Servers" href="/servers" theme={theme} />
       <SidebarItem icon={<Package size={18} />} label="Applications" href="/apps" theme={theme} />
       <SidebarItem icon={<Database size={18} />} label="Databases" href="/databases" theme={theme} />
+      <SidebarItem icon={<HardDrive size={18} />} label="Storage" href="/storage" theme={theme} />
       <SidebarItem icon={<Globe size={18} />} label="Domains" href="/domains" theme={theme} />
       <SidebarItem icon={<Settings size={18} />} label="Settings" href="/settings" theme={theme} />
     </nav>
