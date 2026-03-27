@@ -16,24 +16,39 @@ export default function SettingsPage() {
             <h2 className="text-xl font-bold">Branding & Appearance</h2>
           </div>
           
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-            <div className="space-y-2">
-              <label className="text-sm text-white/40 block">Platform Name</label>
-              <input 
-                type="text" 
-                defaultValue="My-Panel" 
-                className="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 focus:outline-none focus:ring-2 focus:ring-blue-500/50"
-              />
-            </div>
-            <div className="space-y-2">
-              <label className="text-sm text-white/40 block">Primary Color</label>
-              <div className="flex items-center space-x-3">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+            <div className="space-y-4">
+              <div className="space-y-2">
+                <label className="text-sm text-white/40 block">Platform Name</label>
                 <input 
-                  type="color" 
-                  defaultValue="#3b66f5" 
-                  className="w-12 h-12 rounded-lg bg-transparent border-none cursor-pointer"
+                  type="text" 
+                  defaultValue="My-Panel" 
+                  className="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 focus:outline-none focus:ring-2 focus:ring-blue-500/50 transition-all font-medium"
                 />
-                <span className="text-sm font-mono text-white/60">#3B66F5</span>
+              </div>
+              <div className="space-y-2">
+                <label className="text-sm text-white/40 block">Primary Color</label>
+                <div className="flex items-center space-x-3 bg-white/5 border border-white/10 rounded-xl px-4 py-2">
+                  <input 
+                    type="color" 
+                    defaultValue="#3b66f5" 
+                    className="w-8 h-8 rounded-lg bg-transparent border-none cursor-pointer"
+                  />
+                  <span className="text-sm font-mono text-white/60 font-medium">#3B66F5</span>
+                </div>
+              </div>
+            </div>
+
+            <div className="space-y-2">
+              <label className="text-sm text-white/40 block">Platform Logo</label>
+              <div className="border-2 border-dashed border-white/10 rounded-3xl p-8 flex flex-col items-center justify-center space-y-3 hover:border-blue-500/50 transition-colors cursor-pointer group">
+                <div className="w-16 h-16 bg-white/5 rounded-2xl flex items-center justify-center group-hover:scale-110 transition-transform">
+                  <Cloud className="text-white/20 group-hover:text-blue-500/50" size={32} />
+                </div>
+                <div className="text-center">
+                  <p className="text-sm font-medium">Click to upload logo</p>
+                  <p className="text-xs text-white/20">PNG, SVG or JPEG (max 2MB)</p>
+                </div>
               </div>
             </div>
           </div>
