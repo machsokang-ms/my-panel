@@ -62,19 +62,24 @@ app.get('/api/health', (req: Request, res: Response) => {
 // Auth: Login
 app.post('/api/auth/login', async (req: Request, res: Response) => {
   const { username, password } = req.body;
-  const user = MOCK_USERS.find(u => u.username === username);
+  try {
+    const result = await query('SELECT * FROM users WHERE username = $1', [username]);
+    const user = result.rows[0];
 
-  if (!user) {
-    return res.status(401).json({ error: 'Invalid credentials' });
+    if (!user) {
+      return res.status(401).json({ error: 'Invalid credentials' });
+    }
+
+    const isValid = await comparePassword(password, user.password_hash);
+    if (!isValid) {
+      return res.status(401).json({ error: 'Invalid credentials' });
+    }
+
+    const token = generateToken(user.id);
+    res.json({ token, user: { id: user.id, username: user.username } });
+  } catch (error: any) {
+    res.status(500).json({ error: error.message });
   }
-
-  // For mock: assume password is "admin"
-  if (password !== 'admin') {
-    return res.status(401).json({ error: 'Invalid credentials' });
-  }
-
-  const token = generateToken(user.id);
-  res.json({ token, user: { id: user.id, username: user.username } });
 });
 
 // List all containers (Apps)
@@ -136,7 +141,7 @@ app.post('/api/apps/install', async (req: Request, res: Response) => {
 app.get('/api/databases', async (req: Request, res: Response) => {
   try {
     const containers = await docker.listContainers({ all: true });
-    const dbs = containers.filter(c => 
+    const dbs = containers.filter((c: any) => 
       c.Image.includes('postgres') || 
       c.Image.includes('mysql') || 
       c.Image.includes('mariadb') || 

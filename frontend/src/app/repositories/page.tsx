@@ -23,17 +23,55 @@ export default function RepositoriesPage() {
   const { theme } = useTheme();
   const [mounted, setMounted] = useState(false);
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const [repositories, setRepositories] = useState<any[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
+
+  // Form states
+  const [formData, setFormData] = useState({
+    name: '',
+    url: '',
+    provider: 'GitHub',
+    branch: 'main',
+    project: 'None',
+    accessToken: ''
+  });
 
   useEffect(() => {
     setMounted(true);
+    fetchRepos();
   }, []);
 
-  if (!mounted) return null;
+  const fetchRepos = async () => {
+    try {
+      const res = await fetch('http://10.1.2.208/api/repositories');
+      const data = await res.json();
+      setRepositories(data);
+    } catch (err) {
+      console.error("Failed to fetch repos", err);
+    } finally {
+      setIsLoading(false);
+    }
+  };
 
-  const repositories = [
-    { name: "my-panel-frontend", provider: "GitHub", url: "https://github.com/machsokang-ms/my-panel", branch: "main", status: "synced" },
-    { name: "api-backend-core", provider: "GitHub", url: "https://github.com/org/api-core", branch: "develop", status: "outdated" }
-  ];
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    try {
+      const res = await fetch('http://10.1.2.208/api/repositories', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(formData)
+      });
+      if (res.ok) {
+        setIsModalOpen(false);
+        fetchRepos();
+        setFormData({ name: '', url: '', provider: 'GitHub', branch: 'main', project: 'None', accessToken: '' });
+      }
+    } catch (err) {
+      console.error("Failed to add repo", err);
+    }
+  };
+
+  if (!mounted) return null;
 
   return (
     <div className="space-y-8 animate-in fade-in slide-in-from-bottom-4 duration-500">
