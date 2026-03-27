@@ -156,23 +156,6 @@ export default function Dashboard() {
   );
 }
 
-function SidebarItem({ icon, label, href = "/" }: { icon: React.ReactNode, label: string, href?: string }) {
-  const pathname = usePathname();
-  const active = pathname === href;
-
-  return (
-    <Link href={href}>
-      <div className={`
-        flex items-center space-x-3 px-3 py-2 rounded-lg cursor-pointer transition-all duration-200 text-sm font-medium
-        ${active ? 'bg-slate-100 text-slate-900' : 'text-slate-500 hover:text-slate-900 hover:bg-slate-50'}
-      `}>
-        {icon}
-        <span>{label}</span>
-      </div>
-    </Link>
-  );
-}
-
 function StatsCard({ label, value, detail, color, icon, progress, isNetwork = false }: { 
   label: string, 
   value: string, 
@@ -182,15 +165,16 @@ function StatsCard({ label, value, detail, color, icon, progress, isNetwork = fa
   progress: number,
   isNetwork?: boolean
 }) {
+  const { theme } = useTheme();
+  
   return (
-    <div className="bg-white p-6 rounded-2xl border border-slate-200 shadow-sm flex items-center space-x-6 relative overflow-hidden group hover:shadow-md transition-all">
-      {/* Decorative top bar like Easypanel */}
+    <div className={`${theme === 'dark' ? 'bg-[#1E293B] border-slate-700' : 'bg-white border-slate-200'} p-6 rounded-2xl border shadow-sm flex items-center space-x-6 relative overflow-hidden group hover:shadow-md transition-all`}>
+      {/* Decorative top bar */}
       <div className={`absolute top-0 left-0 right-0 h-1 ${color}`} />
       
       <div className="relative w-16 h-16 flex items-center justify-center">
-        {/* Simple Progress Circle */}
         <svg className="w-16 h-16 transform -rotate-90">
-          <circle cx="32" cy="32" r="28" stroke="currentColor" strokeWidth="4" fill="transparent" className="text-slate-100" />
+          <circle cx="32" cy="32" r="28" stroke="currentColor" strokeWidth="4" fill="transparent" className={theme === 'dark' ? 'text-slate-800' : 'text-slate-100'} />
           <circle cx="32" cy="32" r="28" stroke="currentColor" strokeWidth="4" fill="transparent" 
             strokeDasharray={175.9} 
             strokeDashoffset={175.9 - (175.9 * progress) / 100} 
@@ -202,9 +186,9 @@ function StatsCard({ label, value, detail, color, icon, progress, isNetwork = fa
         </div>
       </div>
 
-      <div className="flex-1">
+      <div className="flex-1 text-left">
         <p className="text-[10px] uppercase tracking-wider font-bold text-slate-400 mb-0.5">{label}</p>
-        <p className="text-2xl font-black text-slate-900 leading-tight">{value}</p>
+        <p className="text-2xl font-black leading-tight">{value}</p>
         <p className="text-[10px] text-slate-500 font-medium">{detail}</p>
       </div>
 
@@ -219,33 +203,33 @@ function StatsCard({ label, value, detail, color, icon, progress, isNetwork = fa
   );
 }
 
-function ProjectSection({ title, apps }: { title: string, apps: any[] }) {
+function ProjectSection({ title, apps, theme }: { title: string, apps: any[], theme: string }) {
   return (
-    <div className="mb-10 group">
+    <div className="mb-10 group text-left">
       <div className="flex items-center space-x-2 mb-4">
         <Folder size={18} className="text-slate-400" />
-        <h3 className="text-lg font-bold text-slate-800">{title}</h3>
-        <span className="text-[10px] px-1.5 py-0.5 bg-slate-100 text-slate-500 rounded font-bold">{apps.length}</span>
-        <div className="flex-1 h-[1px] bg-slate-100 ml-4 group-hover:bg-slate-200 transition-colors" />
+        <h3 className={`text-lg font-bold ${theme === 'dark' ? 'text-slate-200' : 'text-slate-800'}`}>{title}</h3>
+        <span className={`text-[10px] px-1.5 py-0.5 ${theme === 'dark' ? 'bg-slate-800 text-slate-400' : 'bg-slate-100 text-slate-500'} rounded font-bold`}>{apps.length}</span>
+        <div className={`flex-1 h-[1px] ${theme === 'dark' ? 'bg-slate-800' : 'bg-slate-100'} ml-4 group-hover:bg-slate-200 dark:group-hover:bg-slate-700 transition-colors`} />
         <Plus size={16} className="text-slate-300 hover:text-slate-600 cursor-pointer" />
       </div>
       
       <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-4">
         {apps.map((app, i) => (
-          <div key={i} className="bg-white p-4 rounded-xl border border-slate-200 hover:border-slate-300 hover:shadow-sm transition-all cursor-pointer group/app">
+          <div key={i} className={`${theme === 'dark' ? 'bg-[#1E293B] border-slate-700 hover:border-slate-500' : 'bg-white border-slate-200 hover:border-slate-300'} p-4 rounded-xl border hover:shadow-sm transition-all cursor-pointer group/app`}>
             <div className="flex items-center justify-between mb-3">
-              <div className="flex items-center space-x-3">
-                <div className={`w-8 h-8 rounded-lg flex items-center justify-center ${app.status === 'online' ? 'bg-emerald-50 text-emerald-600' : 'bg-orange-50 text-orange-600'}`}>
+              <div className="flex items-center space-x-3 text-left">
+                <div className={`w-8 h-8 rounded-lg flex items-center justify-center ${app.status === 'online' ? 'bg-emerald-500/10 text-emerald-500' : 'bg-orange-500/10 text-orange-500'}`}>
                   <Package size={16} />
                 </div>
                 <div>
-                  <p className="text-sm font-bold text-slate-900 group-hover/app:text-emerald-600 transition-colors">{app.name}</p>
+                  <p className="text-sm font-bold group-hover/app:text-emerald-500 transition-colors">{app.name}</p>
                   <p className="text-[10px] text-slate-400 font-medium">{app.role}</p>
                 </div>
               </div>
               <div className={`w-2 h-2 rounded-full ${app.status === 'online' ? 'bg-emerald-500' : 'bg-orange-500'} animate-pulse`} />
             </div>
-            <div className="flex justify-between items-center text-[10px] text-slate-400 font-bold border-t border-slate-50 pt-3">
+            <div className={`flex justify-between items-center text-[10px] text-slate-400 font-bold border-t ${theme === 'dark' ? 'border-slate-800' : 'border-slate-50'} pt-3`}>
               <span>UPTIME: 12d 4h</span>
               <ChevronRight size={14} className="text-slate-300 group-hover/app:text-slate-600 group-hover/app:translate-x-1 transition-all" />
             </div>
