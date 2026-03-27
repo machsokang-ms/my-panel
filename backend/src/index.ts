@@ -5,6 +5,8 @@ import dotenv from 'dotenv';
 import { generateToken, comparePassword, hashPassword } from './auth';
 import { APP_TEMPLATES } from './templates';
 
+import { query, initDB } from './db';
+
 dotenv.config();
 
 const app = express();
@@ -14,10 +16,43 @@ const port = process.env.PORT || 4000;
 app.use(cors());
 app.use(express.json());
 
-// Mock DB for now
-const MOCK_USERS = [
-  { id: '1', username: 'admin', passwordHash: '' } 
-];
+// Initialize DB
+initDB();
+
+// List all repositories
+app.get('/api/repositories', async (req: Request, res: Response) => {
+  try {
+    const result = await query('SELECT * FROM repositories ORDER BY created_at DESC');
+    res.json(result.rows);
+  } catch (error: any) {
+    res.status(500).json({ error: error.message });
+  }
+});
+
+// Add a repository
+app.post('/api/repositories', async (req: Request, res: Response) => {
+  const { name, url, provider, branch, accessToken, project } = req.body;
+  try {
+    const result = await query(
+      'INSERT INTO repositories (name, url, provider, branch, access_token, project) VALUES ($1, $2, $3, $4, $5, $6) RETURNING *',
+      [name, url, provider || 'github', branch || 'main', accessToken, project]
+    );
+    res.json(result.rows[0]);
+  } catch (error: any) {
+    res.status(500).json({ error: error.message });
+  }
+});
+
+// Delete a repository
+app.delete('/api/repositories/:id', async (req: Request, res: Response) => {
+  const { id } = req.params;
+  try {
+    await query('DELETE FROM repositories WHERE id = $1', [id]);
+    res.json({ success: true });
+  } catch (error: any) {
+    res.status(500).json({ error: error.message });
+  }
+});
 
 // Health check
 app.get('/api/health', (req: Request, res: Response) => {
