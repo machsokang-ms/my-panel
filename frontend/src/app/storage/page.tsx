@@ -45,7 +45,7 @@ export default function StoragePage() {
 
   const fetchStorage = async () => {
     try {
-      const res = await fetch('http://10.1.2.208/api/storage');
+      const res = await fetch('/api/storage');
       const data = await res.json();
       setStorages(data);
     } catch (err) {
@@ -58,7 +58,7 @@ export default function StoragePage() {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     try {
-      const res = await fetch('http://10.1.2.208/api/storage', {
+      const res = await fetch('/api/storage', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(formData)
@@ -171,7 +171,7 @@ export default function StoragePage() {
                   </button>
                   <button 
                     onClick={async () => {
-                      await fetch(`http://10.1.2.208/api/storage/${storage.id}`, { method: 'DELETE' });
+                      await fetch(`/api/storage/${storage.id}`, { method: 'DELETE' });
                       fetchStorage();
                     }}
                     title="Delete connector" 

@@ -49,7 +49,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
 
   const fetchSettings = async () => {
     try {
-      const res = await fetch("http://10.1.2.208/api/settings");
+      const res = await fetch("/api/settings");
       const data = await res.json();
       if (data) {
         setSettings({
@@ -114,7 +114,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
         <header className="md:hidden flex items-center justify-between p-4 bg-white dark:bg-[#1E293B] border-b dark:border-slate-700">
           <div className="flex items-center space-x-2">
             {settings.logoUrl ? (
-              <img src={`http://10.1.2.208${settings.logoUrl}`} alt="logo" className="w-8 h-8 object-contain" />
+              <img src={settings.logoUrl} alt="logo" className="w-8 h-8 object-contain" />
             ) : (
               <div className="w-8 h-8 bg-emerald-500 rounded-lg flex items-center justify-center text-white">
                 <Cloud size={18} />
@@ -139,7 +139,7 @@ function Branding({ theme, settings }: { theme: string, settings: any }) {
   return (
     <div className="flex items-center space-x-3 px-3 py-2">
       {settings.logoUrl ? (
-        <img src={`http://10.1.2.208${settings.logoUrl}`} alt="logo" className="w-10 h-10 object-contain drop-shadow" />
+        <img src={settings.logoUrl} alt="logo" className="w-10 h-10 object-contain drop-shadow" />
       ) : (
         <div className="w-10 h-10 bg-emerald-500 rounded-lg flex items-center justify-center text-white shadow-emerald-500/20 shadow-lg">
           <Cloud size={20} />

@@ -41,7 +41,7 @@ export default function ServersPage() {
 
   const fetchServers = async () => {
     try {
-      const res = await fetch('http://10.1.2.208/api/servers');
+      const res = await fetch('/api/servers');
       const data = await res.json();
       setServers(data);
     } catch (err) {
@@ -54,7 +54,7 @@ export default function ServersPage() {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     try {
-      const res = await fetch('http://10.1.2.208/api/servers', {
+      const res = await fetch('/api/servers', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(formData)
@@ -178,7 +178,7 @@ export default function ServersPage() {
                   <div className="h-8 w-[1px] bg-slate-100 dark:border-slate-800 mx-2" />
                   <button 
                     onClick={async () => {
-                      await fetch(`http://10.1.2.208/api/servers/${node.id}`, { method: 'DELETE' });
+                      await fetch(`/api/servers/${node.id}`, { method: 'DELETE' });
                       fetchServers();
                     }}
                     className={`p-2 rounded-lg hover:bg-red-50 dark:hover:bg-red-900/20 text-slate-400 hover:text-red-500 transition-colors`}

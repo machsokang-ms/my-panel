@@ -42,7 +42,7 @@ export default function AppStore() {
 
   const fetchTemplates = async () => {
     try {
-      const res = await fetch("http://10.1.2.208/api/templates");
+      const res = await fetch("/api/templates");
       const data = await res.json();
       setTemplates(data);
     } catch (error) {
@@ -58,7 +58,7 @@ export default function AppStore() {
     setDeployResult(null);
 
     try {
-      const res = await fetch("http://10.1.2.208/api/apps/install", {
+      const res = await fetch("/api/apps/install", {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({

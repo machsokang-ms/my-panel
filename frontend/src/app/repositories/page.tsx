@@ -43,7 +43,7 @@ export default function RepositoriesPage() {
 
   const fetchRepos = async () => {
     try {
-      const res = await fetch('http://10.1.2.208/api/repositories');
+      const res = await fetch('/api/repositories');
       const data = await res.json();
       setRepositories(data);
     } catch (err) {
@@ -56,7 +56,7 @@ export default function RepositoriesPage() {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     try {
-      const res = await fetch('http://10.1.2.208/api/repositories', {
+      const res = await fetch('/api/repositories', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(formData)

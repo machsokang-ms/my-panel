@@ -34,7 +34,7 @@ export default function MonitoringPage() {
 
   const fetchStats = async () => {
     try {
-      const res = await fetch("http://10.1.2.208/api/monitoring/overview");
+      const res = await fetch("/api/monitoring/overview");
       const data = await res.json();
       setStats(data);
     } catch (error) {

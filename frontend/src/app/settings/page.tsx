@@ -30,7 +30,7 @@ export default function SettingsPage() {
 
   const fetchSettings = async () => {
     try {
-      const res = await fetch("http://10.1.2.208/api/settings");
+      const res = await fetch("/api/settings");
       const data = await res.json();
       if (data) {
         setSettings({
@@ -69,7 +69,7 @@ export default function SettingsPage() {
     }
 
     try {
-      const res = await fetch("http://10.1.2.208/api/settings", {
+      const res = await fetch("/api/settings", {
         method: "POST",
         body: formData
       });
@@ -164,7 +164,7 @@ export default function SettingsPage() {
                 {previewUrl || settings.logoUrl ? (
                   <div className="relative w-24 h-24 group-hover:scale-105 transition-transform duration-500">
                     <img 
-                      src={previewUrl || `http://10.1.2.208${settings.logoUrl}`} 
+                      src={previewUrl || settings.logoUrl} 
                       alt="Logo Preview" 
                       className="w-full h-full object-contain drop-shadow-2xl"
                     />
