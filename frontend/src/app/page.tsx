@@ -24,12 +24,23 @@ import {
 } from "lucide-react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
+import { useTheme } from "next-themes";
+import { useEffect, useState } from "react";
 
 export default function Dashboard() {
+  const { theme, setTheme } = useTheme();
+  const [mounted, setMounted] = useState(false);
+
+  useEffect(() => {
+    setMounted(true);
+  }, []);
+
+  if (!mounted) return null;
+
   return (
-    <div className="flex h-screen bg-[#F8FAFC] text-slate-800 overflow-hidden font-sans">
-      {/* Sidebar - Light Version like Easypanel */}
-      <aside className="w-64 bg-white border-r border-slate-200 flex flex-col p-4 space-y-6 hidden md:flex">
+    <div className={`flex h-screen ${theme === 'dark' ? 'bg-[#0F172A] text-slate-100' : 'bg-[#F8FAFC] text-slate-800'} overflow-hidden font-sans`}>
+      {/* Sidebar */}
+      <aside className={`w-64 ${theme === 'dark' ? 'bg-[#1E293B] border-slate-700' : 'bg-white border-slate-200'} border-r flex flex-col p-4 space-y-6 hidden md:flex`}>
         <div className="flex items-center space-x-3 px-3 py-2">
           <div className="w-8 h-8 bg-emerald-500 rounded-lg flex items-center justify-center text-white shadow-sm">
             <Cloud size={18} />
@@ -48,15 +59,18 @@ export default function Dashboard() {
           <SidebarItem icon={<Settings size={18} />} label="Settings" href="/settings" />
         </nav>
 
-        <div className="pt-4 border-t border-slate-100 space-y-1">
+        <div className={`pt-4 border-t ${theme === 'dark' ? 'border-slate-700' : 'border-slate-100'} space-y-1`}>
           <SidebarItem icon={<Users size={18} />} label="Users" href="/users" />
-          <div className="flex items-center justify-between px-3 py-2 text-slate-500 hover:text-slate-900 cursor-pointer rounded-lg transition-colors group">
+          <div 
+            onClick={() => setTheme(theme === 'dark' ? 'light' : 'dark')}
+            className="flex items-center justify-between px-3 py-2 text-slate-500 hover:text-slate-900 cursor-pointer rounded-lg transition-colors group"
+          >
             <div className="flex items-center space-x-3">
               <Activity size={18} />
               <span className="text-sm font-medium">Dark Mode</span>
             </div>
-            <div className="w-8 h-4 bg-slate-200 rounded-full flex items-center px-1">
-              <div className="w-2.5 h-2.5 bg-white rounded-full shadow-sm" />
+            <div className={`w-8 h-4 ${theme === 'dark' ? 'bg-emerald-500' : 'bg-slate-200'} rounded-full flex items-center px-1 transition-colors relative`}>
+              <div className={`w-2.5 h-2.5 bg-white rounded-full shadow-sm transition-all duration-200 absolute ${theme === 'dark' ? 'right-1' : 'left-1'}`} />
             </div>
           </div>
           <button 
