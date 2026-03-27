@@ -1,28 +1,59 @@
-import express from 'express';
+import express, { Request, Response } from 'express';
 import Docker from 'dockerode';
 import cors from 'cors';
 import dotenv from 'dotenv';
+import { generateToken, comparePassword, hashPassword } from './auth';
+import { APP_TEMPLATES } from './templates';
 
 dotenv.config();
 
 const app = express();
-const docker = new Docker({ socketPath: '/var/run/docker.sock' }); // Standard Docker socket on Linux/Docker Desktop
+const docker = new Docker({ socketPath: '/var/run/docker.sock' });
 const port = process.env.PORT || 4000;
 
 app.use(cors());
 app.use(express.json());
 
+// Mock DB for now
+const MOCK_USERS = [
+  { id: '1', username: 'admin', passwordHash: '' } 
+];
+
 // Health check
-app.get('/api/health', (req, res) => {
+app.get('/api/health', (req: Request, res: Response) => {
   res.json({ status: 'ok', timestamp: new Date().toISOString() });
 });
 
-import { APP_TEMPLATES } from './templates';
+// Auth: Login
+app.post('/api/auth/login', async (req: Request, res: Response) => {
+  const { username, password } = req.body;
+  const user = MOCK_USERS.find(u => u.username === username);
 
-// ... (previous imports and setup)
+  if (!user) {
+    return res.status(401).json({ error: 'Invalid credentials' });
+  }
+
+  // For mock: assume password is "admin"
+  if (password !== 'admin') {
+    return res.status(401).json({ error: 'Invalid credentials' });
+  }
+
+  const token = generateToken(user.id);
+  res.json({ token, user: { id: user.id, username: user.username } });
+});
+
+// List all containers (Apps)
+app.get('/api/apps', async (req: Request, res: Response) => {
+  try {
+    const containers = await docker.listContainers({ all: true });
+    res.json(containers);
+  } catch (error: any) {
+    res.status(500).json({ error: error.message });
+  }
+});
 
 // Install an app
-app.post('/api/apps/install', async (req, res) => {
+app.post('/api/apps/install', async (req: Request, res: Response) => {
   const { templateId, name, env, domain } = req.body;
   const template = APP_TEMPLATES.find(t => t.id === templateId);
 
@@ -67,7 +98,7 @@ app.post('/api/apps/install', async (req, res) => {
 });
 
 // List Databases
-app.get('/api/databases', async (req, res) => {
+app.get('/api/databases', async (req: Request, res: Response) => {
   try {
     const containers = await docker.listContainers({ all: true });
     const dbs = containers.filter(c => 

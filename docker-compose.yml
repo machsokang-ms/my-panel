@@ -54,6 +54,19 @@ services:
       - "traefik.http.services.web.loadbalancer.server.port=3000"
       - "traefik.http.routers.web.priority=5"
 
+  # Panel Internal Database
+  db:
+    image: postgres:15-alpine
+    container_name: my-panel-db
+    environment:
+      - POSTGRES_USER=panel_admin
+      - POSTGRES_PASSWORD=panel_secret_password
+      - POSTGRES_DB=mypanel
+    volumes:
+      - ./data/db:/var/lib/postgresql/data
+    networks:
+      - my-panel-network
+
 networks:
   my-panel-network:
     driver: bridge
