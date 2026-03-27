@@ -37,10 +37,30 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
   const { theme, setTheme } = useTheme();
   const [mounted, setMounted] = useState(false);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+  const [settings, setSettings] = useState({
+    platformName: "My-Panel",
+    logoUrl: ""
+  });
 
   useEffect(() => {
     setMounted(true);
+    fetchSettings();
   }, []);
+
+  const fetchSettings = async () => {
+    try {
+      const res = await fetch("http://10.1.2.208/api/settings");
+      const data = await res.json();
+      if (data) {
+        setSettings({
+          platformName: data.platform_name || "My-Panel",
+          logoUrl: data.logo_url || ""
+        });
+      }
+    } catch (error) {
+      console.error("Failed to fetch settings for layout", error);
+    }
+  };
 
   if (!mounted) return null;
 
@@ -48,7 +68,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
     <div className={`flex h-screen ${theme === 'dark' ? 'bg-[#0F172A] text-slate-100' : 'bg-[#F8FAFC] text-slate-800'} overflow-hidden font-sans transition-colors duration-300`}>
       {/* Sidebar - Desktop */}
       <aside className={`w-64 ${theme === 'dark' ? 'bg-[#1E293B] border-slate-700' : 'bg-white border-slate-200'} border-r flex flex-col p-4 space-y-6 hidden md:flex z-50`}>
-        <Branding theme={theme as string} />
+        <Branding theme={theme as string} settings={settings} />
         <Navigation theme={theme as string} />
         <BottomSection theme={theme as string} setTheme={setTheme} />
       </aside>
@@ -81,7 +101,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
                 <X size={20} />
               </button>
             </div>
-            <Branding theme={theme as string} />
+            <Branding theme={theme as string} settings={settings} />
             <Navigation theme={theme as string} />
             <BottomSection theme={theme as string} setTheme={setTheme} />
           </motion.aside>
@@ -93,10 +113,14 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
         {/* Mobile Header */}
         <header className="md:hidden flex items-center justify-between p-4 bg-white dark:bg-[#1E293B] border-b dark:border-slate-700">
           <div className="flex items-center space-x-2">
-            <div className="w-8 h-8 bg-emerald-500 rounded-lg flex items-center justify-center text-white">
-              <Cloud size={18} />
-            </div>
-            <span className="font-bold">My-Panel</span>
+            {settings.logoUrl ? (
+              <img src={`http://10.1.2.208${settings.logoUrl}`} alt="logo" className="w-8 h-8 object-contain" />
+            ) : (
+              <div className="w-8 h-8 bg-emerald-500 rounded-lg flex items-center justify-center text-white">
+                <Cloud size={18} />
+              </div>
+            )}
+            <span className="font-bold">{settings.platformName}</span>
           </div>
           <button onClick={() => setIsMobileMenuOpen(true)} className="p-2 bg-slate-100 dark:bg-slate-800 rounded-lg text-slate-600 dark:text-slate-300">
             <Menu size={20} />
@@ -111,14 +135,18 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
   );
 }
 
-function Branding({ theme }: { theme: string }) {
+function Branding({ theme, settings }: { theme: string, settings: any }) {
   return (
     <div className="flex items-center space-x-3 px-3 py-2">
-      <div className="w-8 h-8 bg-emerald-500 rounded-lg flex items-center justify-center text-white shadow-emerald-500/20 shadow-lg">
-        <Cloud size={18} />
-      </div>
+      {settings.logoUrl ? (
+        <img src={`http://10.1.2.208${settings.logoUrl}`} alt="logo" className="w-10 h-10 object-contain drop-shadow" />
+      ) : (
+        <div className="w-10 h-10 bg-emerald-500 rounded-lg flex items-center justify-center text-white shadow-emerald-500/20 shadow-lg">
+          <Cloud size={20} />
+        </div>
+      )}
       <div>
-        <span className={`text-lg font-bold tracking-tight ${theme === 'dark' ? 'text-white' : 'text-slate-900'}`}>My-Panel</span>
+        <span className={`text-lg font-bold tracking-tight truncate max-w-[120px] block ${theme === 'dark' ? 'text-white' : 'text-slate-900'}`}>{settings.platformName}</span>
         <p className="text-[10px] text-slate-400 font-medium">v1.0.0 • EN</p>
       </div>
     </div>

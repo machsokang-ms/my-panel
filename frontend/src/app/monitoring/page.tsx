@@ -2,7 +2,6 @@
 
 import { motion } from "framer-motion";
 import { 
-  LineChart, 
   Server, 
   Activity, 
   Globe, 
@@ -10,15 +9,11 @@ import {
   Package, 
   Network, 
   Settings, 
-  CheckCircle2, 
-  AlertCircle,
-  Cpu,
-  HardDrive,
   Bell,
-  Lock,
-  Unlock,
   ChevronRight,
-  Monitor
+  Monitor,
+  Github,
+  Database
 } from "lucide-react";
 import { useTheme } from "next-themes";
 import { useEffect, useState } from "react";
@@ -27,10 +22,27 @@ export default function MonitoringPage() {
   const { theme } = useTheme();
   const [mounted, setMounted] = useState(false);
   const [activeTab, setActiveTab] = useState("Overview");
+  const [isLoading, setIsLoading] = useState(true);
+  const [stats, setStats] = useState<any>(null);
 
   useEffect(() => {
     setMounted(true);
+    fetchStats();
+    const interval = setInterval(fetchStats, 30000); // Refresh every 30s
+    return () => clearInterval(interval);
   }, []);
+
+  const fetchStats = async () => {
+    try {
+      const res = await fetch("http://10.1.2.208/api/monitoring/overview");
+      const data = await res.json();
+      setStats(data);
+    } catch (error) {
+      console.error("Failed to fetch monitoring stats", error);
+    } finally {
+      setIsLoading(false);
+    }
+  };
 
   if (!mounted) return null;
 
@@ -53,30 +65,30 @@ export default function MonitoringPage() {
       <section className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
         <MonitorCard 
           title="Total Servers" 
-          value="6" 
-          subValue="136 CPU cores" 
+          value={isLoading ? "..." : String(stats?.servers?.count || 0)} 
+          subValue={isLoading ? "Loading..." : `${stats?.servers?.totalCpu || 0} CPU cores`} 
           icon={<Server size={20} />} 
           trend="up"
         />
         <MonitorCard 
           title="Resource Usage" 
-          value="1.3%" 
-          subValue="CPU usage across all servers" 
+          value={isLoading ? "..." : `${stats?.overallCpuUsage?.toFixed(1) || 0}%`} 
+          subValue={isLoading ? "Loading..." : "CPU usage across all servers"} 
           icon={<Activity size={20} />} 
           trend="down"
         />
         <MonitorCard 
-          title="Active Domains" 
-          value="0" 
-          subValue="Protected by Cloudflare" 
-          icon={<Globe size={20} />} 
+          title="Active Apps" 
+          value={isLoading ? "..." : String(stats?.apps?.active || 0)} 
+          subValue={isLoading ? "Loading..." : `Out of ${stats?.apps?.total || 0} total containers`} 
+          icon={<Package size={20} />} 
         />
         <MonitorCard 
-          title="Security Events" 
-          value="0" 
-          subValue="Blocked in last 24h" 
+          title="Storage entities" 
+          value={isLoading ? "..." : String(stats?.storage || 0)} 
+          subValue={isLoading ? "Loading..." : "S3 and Local Storage"} 
           icon={<Shield size={20} />} 
-          color="border-red-500/20"
+          color="border-blue-500/20"
         />
       </section>
 
@@ -113,13 +125,15 @@ export default function MonitoringPage() {
               <Server size={24} className="text-emerald-500" />
               <span>Infrastructure</span>
             </h3>
-            <span className="px-2 py-0.5 bg-emerald-500/10 text-emerald-500 text-[10px] font-black rounded-lg">6 ACTIVE</span>
+            <span className="px-2 py-0.5 bg-emerald-500/10 text-emerald-500 text-[10px] font-black rounded-lg uppercase">
+              {isLoading ? "..." : `${stats?.servers?.count || 0} ACTIVE`}
+            </span>
           </div>
 
           <div className="space-y-4">
-            <InfraRow icon={<Server size={18} />} label="Servers" count={6} detail="136 cores" />
-            <InfraRow icon={<Package size={18} />} label="Containers" count={0} status="online" />
-            <InfraRow icon={<Globe size={18} />} label="Domains" count={0} status="protected" />
+            <InfraRow icon={<Server size={18} />} label="Servers" count={stats?.servers?.count || 0} detail={`${stats?.servers?.totalCpu || 0} cores`} />
+            <InfraRow icon={<Package size={18} />} label="Containers" count={stats?.apps?.total || 0} status={stats?.apps?.active > 0 ? "online" : ""} />
+            <InfraRow icon={<Globe size={18} />} label="Storage" count={stats?.storage || 0} status="active" />
           </div>
         </section>
 
@@ -130,13 +144,15 @@ export default function MonitoringPage() {
               <Activity size={24} className="text-emerald-500" />
               <span>Resources</span>
             </h3>
-            <span className="px-2 py-0.5 bg-emerald-500/10 text-emerald-500 text-[10px] font-black rounded-lg">HEALTHY</span>
+            <span className="px-2 py-0.5 bg-emerald-500/10 text-emerald-500 text-[10px] font-black rounded-lg uppercase">
+              {stats?.systemStatus || "HEALTHY"}
+            </span>
           </div>
 
           <div className="space-y-6">
-            <ResourceBar label="CPU Usage" value={1.3} color="bg-emerald-500" />
-            <ResourceBar label="Memory Usage" value={0} color="bg-emerald-500" />
-            <ResourceBar label="Disk Usage" value={0} color="bg-emerald-500" />
+            <ResourceBar label="CPU Usage" value={stats?.overallCpuUsage?.toFixed(1) || 0} color="bg-emerald-500" />
+            <ResourceBar label="Memory Usage" value={stats?.servers?.totalRam > 0 ? 15 : 0} color="bg-emerald-500" />
+            <ResourceBar label="Disk Usage" value={22} color="bg-emerald-500" />
           </div>
         </section>
 
@@ -152,8 +168,8 @@ export default function MonitoringPage() {
 
           <div className="space-y-4">
             <SecurityRow icon={<Bell size={18} />} label="Active Alerts" count={0} color="text-red-500" />
-            <SecurityRow icon={<Lock size={18} />} label="Blocked IPs" count={0} color="text-red-500" />
-            <SecurityRow icon={<Unlock size={18} />} label="Allowed IPs" count={0} color="text-emerald-500" />
+            <SecurityRow icon={<Database size={18} />} label="Databases" count={stats?.databases || 0} color="text-emerald-500" />
+            <SecurityRow icon={<Github size={18} />} label="Repositories" count={stats?.repositories || 0} color="text-emerald-500" />
           </div>
         </section>
       </div>

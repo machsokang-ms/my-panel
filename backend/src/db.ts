@@ -82,6 +82,28 @@ export const initDB = async () => {
       );
     `);
 
+    // Settings table
+    await query(`
+      CREATE TABLE IF NOT EXISTS settings (
+        id SERIAL PRIMARY KEY,
+        platform_name VARCHAR(100) DEFAULT 'My-Panel',
+        primary_color VARCHAR(10) DEFAULT '#3b66f5',
+        logo_url TEXT,
+        auto_ssl BOOLEAN DEFAULT true,
+        updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+      );
+    `);
+
+    // Seed settings if empty
+    const settingsCheck = await query('SELECT count(*) FROM settings');
+    if (parseInt(settingsCheck.rows[0].count) === 0) {
+      await query(`
+        INSERT INTO settings (platform_name, primary_color) 
+        VALUES ('My-Panel', '#3b66f5')
+      `);
+      console.log('🌱 Default settings seeded');
+    }
+
     console.log('✅ Database schema initialized');
   } catch (error) {
     console.error('❌ Database initialization failed:', error);
