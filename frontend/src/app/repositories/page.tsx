@@ -96,7 +96,7 @@ export default function RepositoriesPage() {
                     <span className="text-[10px] uppercase font-black text-slate-400 tracking-tighter">Default Branch</span>
                     <div className="flex items-center space-x-1 font-mono text-sm font-bold text-emerald-500">
                       <GitBranch size={14} />
-                      <span>{repo.repo?.branch || 'main'}</span>
+                      <span>{repo.branch || 'main'}</span>
                     </div>
                   </div>
                   <div className="flex flex-col items-end">
