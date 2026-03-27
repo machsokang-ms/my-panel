@@ -54,6 +54,72 @@ app.delete('/api/repositories/:id', async (req: Request, res: Response) => {
   }
 });
 
+// --- SERVERS ENDPOINTS ---
+app.get('/api/servers', async (req: Request, res: Response) => {
+  try {
+    const result = await query('SELECT * FROM servers ORDER BY created_at DESC');
+    res.json(result.rows);
+  } catch (error: any) {
+    res.status(500).json({ error: error.message });
+  }
+});
+
+app.post('/api/servers', async (req: Request, res: Response) => {
+  const { name, ip_address, cpu_cores, ram_gb } = req.body;
+  try {
+    const result = await query(
+      'INSERT INTO servers (name, ip_address, cpu_cores, ram_gb) VALUES ($1, $2, $3, $4) RETURNING *',
+      [name, ip_address, cpu_cores, ram_gb]
+    );
+    res.json(result.rows[0]);
+  } catch (error: any) {
+    res.status(500).json({ error: error.message });
+  }
+});
+
+app.delete('/api/servers/:id', async (req: Request, res: Response) => {
+  const { id } = req.params;
+  try {
+    await query('DELETE FROM servers WHERE id = $1', [id]);
+    res.json({ success: true });
+  } catch (error: any) {
+    res.status(500).json({ error: error.message });
+  }
+});
+
+// --- STORAGE ENDPOINTS ---
+app.get('/api/storage', async (req: Request, res: Response) => {
+  try {
+    const result = await query('SELECT * FROM storage ORDER BY created_at DESC');
+    res.json(result.rows);
+  } catch (error: any) {
+    res.status(500).json({ error: error.message });
+  }
+});
+
+app.post('/api/storage', async (req: Request, res: Response) => {
+  const { name, type, endpoint, region, accessKey, secretKey, bucket } = req.body;
+  try {
+    const result = await query(
+      'INSERT INTO storage (name, type, endpoint, region, access_key, secret_key, bucket) VALUES ($1, $2, $3, $4, $5, $6, $7) RETURNING *',
+      [name, type || 's3', endpoint, region, accessKey, secretKey, bucket]
+    );
+    res.json(result.rows[0]);
+  } catch (error: any) {
+    res.status(500).json({ error: error.message });
+  }
+});
+
+app.delete('/api/storage/:id', async (req: Request, res: Response) => {
+  const { id } = req.params;
+  try {
+    await query('DELETE FROM storage WHERE id = $1', [id]);
+    res.json({ success: true });
+  } catch (error: any) {
+    res.status(500).json({ error: error.message });
+  }
+});
+
 // Health check
 app.get('/api/health', (req: Request, res: Response) => {
   res.json({ status: 'ok', timestamp: new Date().toISOString() });

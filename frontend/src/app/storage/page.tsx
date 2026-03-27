@@ -23,31 +23,57 @@ import { useEffect, useState } from "react";
 export default function StoragePage() {
   const { theme } = useTheme();
   const [mounted, setMounted] = useState(false);
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [storages, setStorages] = useState<any[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
+
+  // Form state
+  const [formData, setFormData] = useState({
+    name: '',
+    type: 's3',
+    endpoint: '',
+    region: 'us-east-1',
+    accessKey: '',
+    secretKey: '',
+    bucket: ''
+  });
 
   useEffect(() => {
     setMounted(true);
+    fetchStorage();
   }, []);
 
-  if (!mounted) return null;
-
-  const storages = [
-    { 
-      name: "MinIO Local", 
-      provider: "MinIO (Self-hosted)", 
-      endpoint: "http://10.1.2.208:9000", 
-      buckets: 4, 
-      usage: "12.4 GB", 
-      status: "connected" 
-    },
-    { 
-      name: "AWS Assets", 
-      provider: "AWS S3", 
-      endpoint: "s3.ap-southeast-1.amazonaws.com", 
-      buckets: 2, 
-      usage: "450 MB", 
-      status: "connected" 
+  const fetchStorage = async () => {
+    try {
+      const res = await fetch('http://10.1.2.208/api/storage');
+      const data = await res.json();
+      setStorages(data);
+    } catch (err) {
+      console.error("Failed to fetch storage", err);
+    } finally {
+      setIsLoading(false);
     }
-  ];
+  };
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    try {
+      const res = await fetch('http://10.1.2.208/api/storage', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(formData)
+      });
+      if (res.ok) {
+        setIsModalOpen(false);
+        fetchStorage();
+        setFormData({ name: '', type: 's3', endpoint: '', region: 'us-east-1', accessKey: '', secretKey: '', bucket: '' });
+      }
+    } catch (err) {
+      console.error("Failed to add storage", err);
+    }
+  };
+
+  if (!mounted) return null;
 
   return (
     <div className="space-y-8 animate-in fade-in slide-in-from-bottom-4 duration-500">
@@ -59,7 +85,10 @@ export default function StoragePage() {
             <span>Connect and manage S3-compatible storage for your Apps</span>
           </p>
         </div>
-        <button className="bg-emerald-600 hover:bg-emerald-700 text-white px-4 py-2 rounded-xl text-sm font-bold flex items-center space-x-2 shadow-lg shadow-emerald-600/20 transition-all active:scale-95">
+        <button 
+          onClick={() => setIsModalOpen(true)}
+          className="bg-emerald-600 hover:bg-emerald-700 text-white px-4 py-2 rounded-xl text-sm font-bold flex items-center space-x-2 shadow-lg shadow-emerald-600/20 transition-all active:scale-95"
+        >
           <Plus size={18} />
           <span>Connect Storage</span>
         </button>
@@ -67,9 +96,9 @@ export default function StoragePage() {
 
       {/* Stats Summary */}
       <section className="grid grid-cols-1 md:grid-cols-4 gap-4">
-        <StorageStat label="Total Storage" value="12.8 GB" icon={<HardDrive size={16} />} />
-        <StorageStat label="Total Buckets" value="6" icon={<Layers size={16} />} />
-        <StorageStat label="Active Connectors" value="2" icon={<Database size={16} />} />
+        <StorageStat label="Total Storage" value="-- GB" icon={<HardDrive size={16} />} />
+        <StorageStat label="Total Buckets" value={storages.length.toString()} icon={<Layers size={16} />} />
+        <StorageStat label="Active Connectors" value={storages.length.toString()} icon={<Database size={16} />} />
         <StorageStat label="Data Security" value="Encrypted" icon={<Lock size={16} />} color="text-emerald-500" />
       </section>
 
@@ -88,9 +117,13 @@ export default function StoragePage() {
         </div>
 
         <div className="grid grid-cols-1 gap-4">
-          {storages.map((storage, i) => (
+          {isLoading ? (
+            <div className="p-12 text-center text-slate-400 font-bold uppercase tracking-widest text-xs">Loading Storage...</div>
+          ) : storages.length === 0 ? (
+            <div className="p-12 text-center text-slate-400 font-bold uppercase tracking-widest text-xs border-2 border-dashed border-slate-200 dark:border-slate-800 rounded-3xl">No storage connected yet</div>
+          ) : storages.map((storage, i) => (
             <motion.div 
-              key={i}
+              key={storage.id}
               initial={{ opacity: 0, x: -10 }}
               animate={{ opacity: 1, x: 0 }}
               transition={{ delay: i * 0.1 }}
@@ -102,29 +135,29 @@ export default function StoragePage() {
                     <Database size={24} />
                   </div>
                   <div>
-                    <h3 className="font-bold text-lg leading-tight group-hover:text-emerald-500 transition-colors">{storage.name}</h3>
-                    <p className="text-sm font-medium text-slate-400">{storage.provider}</p>
+                    <h3 className="font-bold text-lg leading-tight group-hover:text-emerald-500 transition-colors uppercase">{storage.name}</h3>
+                    <p className="text-sm font-medium text-slate-400 uppercase tracking-tighter">{storage.type || 'S3 Compatible'}</p>
                   </div>
                 </div>
 
                 <div className="flex-1 grid grid-cols-2 md:grid-cols-4 gap-4 px-4 md:border-x border-slate-100 dark:border-slate-800">
                   <div className="flex flex-col">
                     <span className="text-[10px] uppercase font-black text-slate-400 tracking-tighter">Endpoint</span>
-                    <span className="text-xs font-mono truncate max-w-[150px]">{storage.endpoint}</span>
+                    <span className="text-xs font-mono truncate max-w-[150px]">{storage.endpoint || 'N/A'}</span>
                   </div>
                   <div className="flex flex-col">
-                    <span className="text-[10px] uppercase font-black text-slate-400 tracking-tighter">Buckets</span>
-                    <span className="text-sm font-bold">{storage.buckets} Buckets</span>
+                    <span className="text-[10px] uppercase font-black text-slate-400 tracking-tighter">Bucket</span>
+                    <span className="text-sm font-bold truncate max-w-[100px]">{storage.bucket || 'N/A'}</span>
                   </div>
                   <div className="flex flex-col">
-                    <span className="text-[10px] uppercase font-black text-slate-400 tracking-tighter">Usage</span>
-                    <span className="text-sm font-bold">{storage.usage}</span>
+                    <span className="text-[10px] uppercase font-black text-slate-400 tracking-tighter">Region</span>
+                    <span className="text-sm font-bold">{storage.region || 'N/A'}</span>
                   </div>
                   <div className="flex flex-col">
                     <span className="text-[10px] uppercase font-black text-slate-400 tracking-tighter">Status</span>
                     <div className="flex items-center space-x-1">
                       <div className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse" />
-                      <span className="text-xs font-bold text-emerald-500 uppercase">{storage.status}</span>
+                      <span className="text-xs font-bold text-emerald-500 uppercase">connected</span>
                     </div>
                   </div>
                 </div>
@@ -136,7 +169,14 @@ export default function StoragePage() {
                   <button title="Configure buckets" className={`p-2 rounded-lg ${theme === 'dark' ? 'bg-slate-800 hover:bg-slate-700' : 'bg-slate-50 hover:bg-slate-100'}`}>
                     <Settings size={18} className="text-slate-400" />
                   </button>
-                  <button title="Delete connector" className={`p-2 rounded-lg hover:bg-red-500/10 group/del transition-colors`}>
+                  <button 
+                    onClick={async () => {
+                      await fetch(`http://10.1.2.208/api/storage/${storage.id}`, { method: 'DELETE' });
+                      fetchStorage();
+                    }}
+                    title="Delete connector" 
+                    className={`p-2 rounded-lg hover:bg-red-500/10 group/del transition-colors`}
+                  >
                     <Trash2 size={18} className="text-slate-400 group-hover/del:text-red-500" />
                   </button>
                 </div>
@@ -145,6 +185,111 @@ export default function StoragePage() {
           ))}
         </div>
       </div>
+
+      {/* Add Storage Modal */}
+      {isModalOpen && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/60 backdrop-blur-sm animate-in fade-in duration-300">
+          <motion.div 
+            initial={{ scale: 0.9, opacity: 0 }}
+            animate={{ scale: 1, opacity: 1 }}
+            className={`w-full max-w-lg rounded-3xl p-8 shadow-2xl ${theme === 'dark' ? 'bg-[#0F172A] border border-slate-800' : 'bg-white'}`}
+          >
+            <h2 className="text-2xl font-black mb-6">Connect S3 Storage</h2>
+            <form onSubmit={handleSubmit} className="space-y-4">
+              <div className="grid grid-cols-2 gap-4">
+                <div className="space-y-2">
+                  <label className="text-[10px] font-bold uppercase text-slate-400 tracking-widest">Name</label>
+                  <input 
+                    type="text" required placeholder="My-MinIO"
+                    className={`w-full px-4 py-3 rounded-xl border ${theme === 'dark' ? 'bg-slate-800/50 border-slate-700' : 'bg-slate-50 border-slate-200'} focus:outline-none focus:ring-2 focus:ring-emerald-500 transition-all`}
+                    value={formData.name}
+                    onChange={(e) => setFormData({...formData, name: e.target.value})}
+                  />
+                </div>
+                <div className="space-y-2">
+                  <label className="text-[10px] font-bold uppercase text-slate-400 tracking-widest">Type</label>
+                  <select 
+                    className={`w-full px-4 py-3 rounded-xl border ${theme === 'dark' ? 'bg-slate-800/50 border-slate-700' : 'bg-slate-50 border-slate-200'} focus:outline-none focus:ring-2 focus:ring-emerald-500 transition-all`}
+                    value={formData.type}
+                    onChange={(e) => setFormData({...formData, type: e.target.value})}
+                  >
+                    <option value="s3">S3 Compatible</option>
+                    <option value="aws">AWS S3</option>
+                    <option value="minio">MinIO</option>
+                  </select>
+                </div>
+              </div>
+              <div className="space-y-2">
+                <label className="text-[10px] font-bold uppercase text-slate-400 tracking-widest">Endpoint URL</label>
+                <input 
+                  type="text" required placeholder="https://s3.your-domain.com"
+                  className={`w-full px-4 py-3 rounded-xl border ${theme === 'dark' ? 'bg-slate-800/50 border-slate-700' : 'bg-slate-50 border-slate-200'} focus:outline-none focus:ring-2 focus:ring-emerald-500 transition-all`}
+                  value={formData.endpoint}
+                  onChange={(e) => setFormData({...formData, endpoint: e.target.value})}
+                />
+              </div>
+              <div className="grid grid-cols-2 gap-4">
+                <div className="space-y-2">
+                  <label className="text-[10px] font-bold uppercase text-slate-400 tracking-widest">Access Key</label>
+                  <input 
+                    type="text" required
+                    className={`w-full px-4 py-3 rounded-xl border ${theme === 'dark' ? 'bg-slate-800/50 border-slate-700' : 'bg-slate-50 border-slate-200'} focus:outline-none focus:ring-2 focus:ring-emerald-500 transition-all`}
+                    value={formData.accessKey}
+                    onChange={(e) => setFormData({...formData, accessKey: e.target.value})}
+                  />
+                </div>
+                <div className="space-y-2">
+                  <label className="text-[10px] font-bold uppercase text-slate-400 tracking-widest">Secret Key</label>
+                  <input 
+                    type="password" required
+                    className={`w-full px-4 py-3 rounded-xl border ${theme === 'dark' ? 'bg-slate-800/50 border-slate-700' : 'bg-slate-50 border-slate-200'} focus:outline-none focus:ring-2 focus:ring-emerald-500 transition-all`}
+                    value={formData.secretKey}
+                    onChange={(e) => setFormData({...formData, secretKey: e.target.value})}
+                  />
+                </div>
+              </div>
+              <div className="grid grid-cols-2 gap-4">
+                <div className="space-y-2">
+                  <label className="text-[10px] font-bold uppercase text-slate-400 tracking-widest">Bucket Name</label>
+                  <input 
+                    type="text" required placeholder="my-app-data"
+                    className={`w-full px-4 py-3 rounded-xl border ${theme === 'dark' ? 'bg-slate-800/50 border-slate-700' : 'bg-slate-50 border-slate-200'} focus:outline-none focus:ring-2 focus:ring-emerald-500 transition-all`}
+                    value={formData.bucket}
+                    onChange={(e) => setFormData({...formData, bucket: e.target.value})}
+                  />
+                </div>
+                <div className="space-y-2">
+                  <label className="text-[10px] font-bold uppercase text-slate-400 tracking-widest">Region</label>
+                  <input 
+                    type="text" placeholder="us-east-1"
+                    className={`w-full px-4 py-3 rounded-xl border ${theme === 'dark' ? 'bg-slate-800/50 border-slate-700' : 'bg-slate-50 border-slate-200'} focus:outline-none focus:ring-2 focus:ring-emerald-500 transition-all`}
+                    value={formData.region}
+                    onChange={(e) => setFormData({...formData, region: e.target.value})}
+                  />
+                </div>
+              </div>
+              <div className="flex space-x-3 pt-6">
+                <button 
+                  type="button" 
+                  onClick={() => setIsModalOpen(false)}
+                  className={`flex-1 px-4 py-3 rounded-xl font-bold transition-all ${theme === 'dark' ? 'bg-slate-800 hover:bg-slate-700 text-slate-300' : 'bg-slate-100 hover:bg-slate-200 text-slate-600'}`}
+                >
+                  Cancel
+                </button>
+                <button 
+                  type="submit"
+                  className="flex-1 bg-emerald-600 hover:bg-emerald-700 text-white px-4 py-3 rounded-xl font-bold shadow-lg shadow-emerald-500/20 transition-all active:scale-95"
+                >
+                  Confirm Connection
+                </button>
+              </div>
+            </form>
+          </motion.div>
+        </div>
+      )}
+    </div>
+  );
+}
 
       {/* Credential Setup UI Preview */}
       <section className={`p-8 rounded-3xl border border-dashed ${theme === 'dark' ? 'bg-slate-900/50 border-slate-700' : 'bg-emerald-50/30 border-emerald-200'} flex flex-col items-center text-center`}>
