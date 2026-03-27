@@ -11,7 +11,9 @@ import {
   Plus, 
   Settings, 
   ShieldCheck, 
-  Terminal 
+  Terminal,
+  Users,
+  LogOut
 } from "lucide-react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
@@ -33,12 +35,24 @@ export default function Dashboard() {
           <SidebarItem icon={<Package size={20} />} label="Applications" href="/apps" />
           <SidebarItem icon={<Database size={20} />} label="Databases" href="/databases" />
           <SidebarItem icon={<Globe size={20} />} label="App Store" href="/store" />
+          <SidebarItem icon={<Users size={20} />} label="Users" href="/users" />
           <SidebarItem icon={<Terminal size={20} />} label="Logs" href="/logs" />
         </nav>
 
         <div className="pt-6 border-t border-white/10 space-y-2">
           <SidebarItem icon={<ShieldCheck size={20} />} label="SSL" href="/ssl" />
           <SidebarItem icon={<Settings size={20} />} label="Settings" href="/settings" />
+          <button 
+            onClick={() => {
+              document.cookie = "token=; path=/; expires=Thu, 01 Jan 1970 00:00:00 UTC;";
+              localStorage.removeItem("token");
+              window.location.href = "/login";
+            }}
+            className="w-full flex items-center space-x-3 px-4 py-3 rounded-xl text-red-400 hover:bg-red-500/10 transition-all"
+          >
+            <LogOut size={20} />
+            <span className="font-medium">Logout</span>
+          </button>
         </div>
       </aside>
 

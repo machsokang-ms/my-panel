@@ -18,6 +18,8 @@ export default function LoginPage() {
       });
       const data = await res.json();
       if (data.token) {
+        // Set cookie for middleware
+        document.cookie = `token=${data.token}; path=/; max-age=${7 * 24 * 60 * 60}`;
         localStorage.setItem("token", data.token);
         window.location.href = "/";
       } else {
