@@ -26,7 +26,7 @@ COPY --from=builder /app/public ./public
 
 # Set the correct permission for prerender cache
 RUN mkdir .next
-RUN chown node:interop .next
+RUN chown node:node .next
 
 # Automatically leverage output traces to reduce image size
 COPY --from=builder /app/.next/standalone ./
