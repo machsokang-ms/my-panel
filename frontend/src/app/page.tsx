@@ -13,6 +13,8 @@ import {
   ShieldCheck, 
   Terminal 
 } from "lucide-react";
+import Link from "next/link";
+import { usePathname } from "next/navigation";
 
 export default function Dashboard() {
   return (
@@ -27,16 +29,16 @@ export default function Dashboard() {
         </div>
 
         <nav className="flex-1 space-y-2">
-          <SidebarItem icon={<LayoutDashboard size={20} />} label="Dashboard" active />
-          <SidebarItem icon={<Package size={20} />} label="Applications" />
-          <SidebarItem icon={<Database size={20} />} label="Databases" />
-          <SidebarItem icon={<Globe size={20} />} label="App Store" />
-          <SidebarItem icon={<Terminal size={20} />} label="Logs" />
+          <SidebarItem icon={<LayoutDashboard size={20} />} label="Dashboard" href="/" />
+          <SidebarItem icon={<Package size={20} />} label="Applications" href="/apps" />
+          <SidebarItem icon={<Database size={20} />} label="Databases" href="/databases" />
+          <SidebarItem icon={<Globe size={20} />} label="App Store" href="/store" />
+          <SidebarItem icon={<Terminal size={20} />} label="Logs" href="/logs" />
         </nav>
 
         <div className="pt-6 border-t border-white/10 space-y-2">
-          <SidebarItem icon={<ShieldCheck size={20} />} label="SSL" />
-          <SidebarItem icon={<Settings size={20} />} label="Settings" />
+          <SidebarItem icon={<ShieldCheck size={20} />} label="SSL" href="/ssl" />
+          <SidebarItem icon={<Settings size={20} />} label="Settings" href="/settings" />
         </div>
       </aside>
 
@@ -79,15 +81,20 @@ export default function Dashboard() {
   );
 }
 
-function SidebarItem({ icon, label, active = false }: { icon: React.ReactNode, label: string, active?: boolean }) {
+function SidebarItem({ icon, label, href = "/" }: { icon: React.ReactNode, label: string, href?: string }) {
+  const pathname = usePathname();
+  const active = pathname === href;
+
   return (
-    <div className={`
-      flex items-center space-x-3 px-4 py-3 rounded-xl cursor-pointer transition-all duration-200
-      ${active ? 'bg-white/10 text-white' : 'text-white/40 hover:text-white hover:bg-white/5'}
-    `}>
-      {icon}
-      <span className="font-medium">{label}</span>
-    </div>
+    <Link href={href}>
+      <div className={`
+        flex items-center space-x-3 px-4 py-3 rounded-xl cursor-pointer transition-all duration-200
+        ${active ? 'bg-white/10 text-white' : 'text-white/40 hover:text-white hover:bg-white/5'}
+      `}>
+        {icon}
+        <span className="font-medium">{label}</span>
+      </div>
+    </Link>
   );
 }
 

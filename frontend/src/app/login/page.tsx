@@ -8,11 +8,24 @@ export default function LoginPage() {
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
 
-  const handleLogin = (e: React.FormEvent) => {
+  const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
-    // Logic to call /api/auth/login
-    console.log("Login attempt:", { username, password });
-    window.location.href = "/";
+    try {
+      const res = await fetch("/api/auth/login", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ username, password }),
+      });
+      const data = await res.json();
+      if (data.token) {
+        localStorage.setItem("token", data.token);
+        window.location.href = "/";
+      } else {
+        alert(data.error || "Login failed");
+      }
+    } catch (err) {
+      alert("Failed to connect to server");
+    }
   };
 
   return (
