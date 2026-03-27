@@ -1,7 +1,7 @@
 "use client";
 
 import { motion } from "framer-motion";
-import { Save, Shield, Smartphone, Palette, Globe } from "lucide-react";
+import { Save, Shield, Smartphone, Palette, Globe, Cloud } from "lucide-react";
 
 export default function SettingsPage() {
   return (
