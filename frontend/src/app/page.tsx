@@ -2,33 +2,22 @@
 
 import { motion } from "framer-motion";
 import { 
-  BarChart3, 
   Cloud, 
   Database, 
-  Globe, 
-  LayoutDashboard, 
   Package, 
   Plus, 
-  Settings, 
-  ShieldCheck, 
-  Terminal,
-  Users,
-  LogOut,
-  Activity,
-  HardDrive,
-  Network,
-  Cpu,
-  ChevronRight,
-  MoreHorizontal,
-  Folder
+  Activity, 
+  HardDrive, 
+  Network, 
+  Cpu, 
+  ChevronRight, 
+  Folder 
 } from "lucide-react";
-import Link from "next/link";
-import { usePathname } from "next/navigation";
 import { useTheme } from "next-themes";
 import { useEffect, useState } from "react";
 
 export default function Dashboard() {
-  const { theme, setTheme } = useTheme();
+  const { theme } = useTheme();
   const [mounted, setMounted] = useState(false);
 
   useEffect(() => {
@@ -38,121 +27,70 @@ export default function Dashboard() {
   if (!mounted) return null;
 
   return (
-    <div className={`flex h-screen ${theme === 'dark' ? 'bg-[#0F172A] text-slate-100' : 'bg-[#F8FAFC] text-slate-800'} overflow-hidden font-sans`}>
-      {/* Sidebar */}
-      <aside className={`w-64 ${theme === 'dark' ? 'bg-[#1E293B] border-slate-700' : 'bg-white border-slate-200'} border-r flex flex-col p-4 space-y-6 hidden md:flex`}>
-        <div className="flex items-center space-x-3 px-3 py-2">
-          <div className="w-8 h-8 bg-emerald-500 rounded-lg flex items-center justify-center text-white shadow-sm">
-            <Cloud size={18} />
-          </div>
-          <div>
-            <span className="text-lg font-bold tracking-tight">My-Panel</span>
-            <p className="text-[10px] text-slate-400 font-medium">v1.0.0 • EN</p>
-          </div>
-        </div>
+    <>
+      {/* Stats Grid - Easypanel Style */}
+      <section className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-12">
+        <StatsCard 
+          label="CPU" 
+          value="8.1%" 
+          detail="Load 0.39, 0.42, 0.35" 
+          color="bg-orange-500" 
+          icon={<Cpu size={16} />}
+          progress={8.1}
+        />
+        <StatsCard 
+          label="Memory" 
+          value="59.0%" 
+          detail="4.8 GB / 8.1 GB" 
+          color="bg-blue-500" 
+          icon={<Activity size={16} />}
+          progress={59}
+        />
+        <StatsCard 
+          label="Disk" 
+          value="36.9%" 
+          detail="26.4 GB / 71.7 GB" 
+          color="bg-emerald-500" 
+          icon={<HardDrive size={16} />}
+          progress={36.9}
+        />
+        <StatsCard 
+          label="Network" 
+          value="0.00" 
+          detail="MB/s Up | MB/s Down" 
+          color="bg-slate-500" 
+          icon={<Network size={16} />}
+          progress={0}
+          isNetwork
+        />
+      </section>
 
-        <nav className="flex-1 space-y-1">
-          <SidebarItem icon={<LayoutDashboard size={18} />} label="Dashboard" href="/" />
-          <SidebarItem icon={<Package size={18} />} label="Applications" href="/apps" />
-          <SidebarItem icon={<Database size={18} />} label="Databases" href="/databases" />
-          <SidebarItem icon={<Globe size={18} />} label="Domains" href="/domains" />
-          <SidebarItem icon={<Settings size={18} />} label="Settings" href="/settings" />
-        </nav>
-
-        <div className={`pt-4 border-t ${theme === 'dark' ? 'border-slate-700' : 'border-slate-100'} space-y-1`}>
-          <SidebarItem icon={<Users size={18} />} label="Users" href="/users" />
-          <div 
-            onClick={() => setTheme(theme === 'dark' ? 'light' : 'dark')}
-            className="flex items-center justify-between px-3 py-2 text-slate-500 hover:text-slate-900 cursor-pointer rounded-lg transition-colors group"
-          >
-            <div className="flex items-center space-x-3">
-              <Activity size={18} />
-              <span className="text-sm font-medium">Dark Mode</span>
-            </div>
-            <div className={`w-8 h-4 ${theme === 'dark' ? 'bg-emerald-500' : 'bg-slate-200'} rounded-full flex items-center px-1 transition-colors relative`}>
-              <div className={`w-2.5 h-2.5 bg-white rounded-full shadow-sm transition-all duration-200 absolute ${theme === 'dark' ? 'right-1' : 'left-1'}`} />
-            </div>
-          </div>
-          <button 
-            onClick={() => {
-              document.cookie = "token=; path=/; expires=Thu, 01 Jan 1970 00:00:00 UTC;";
-              localStorage.removeItem("token");
-              window.location.href = "/login";
-            }}
-            className="w-full flex items-center space-x-3 px-3 py-2 rounded-lg text-slate-500 hover:bg-red-50 hover:text-red-600 transition-all font-medium text-sm"
-          >
-            <LogOut size={18} />
-            <span>Logout</span>
+      {/* Projects Layout */}
+      <header className="flex justify-between items-center mb-6">
+        <h2 className={`text-2xl font-bold ${theme === 'dark' ? 'text-white' : 'text-slate-900'}`}>Projects</h2>
+        <div className="flex items-center space-x-2">
+          <button className={`${theme === 'dark' ? 'bg-slate-800 text-slate-300' : 'bg-slate-100 text-slate-600'} px-3 py-1.5 rounded-lg text-sm font-medium flex items-center space-x-1 hover:bg-slate-200 dark:hover:bg-slate-700`}>
+            <Plus size={16} />
+            <span>New</span>
           </button>
         </div>
-      </aside>
+      </header>
 
-      {/* Main Content */}
-      <main className="flex-1 overflow-y-auto p-8">
-        {/* Stats Grid - Easypanel Style */}
-        <section className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-12">
-          <StatsCard 
-            label="CPU" 
-            value="8.1%" 
-            detail="Load 0.39, 0.42, 0.35" 
-            color="bg-orange-500" 
-            icon={<Cpu size={16} />}
-            progress={8.1}
-          />
-          <StatsCard 
-            label="Memory" 
-            value="59.0%" 
-            detail="4.8 GB / 8.1 GB" 
-            color="bg-blue-500" 
-            icon={<Activity size={16} />}
-            progress={59}
-          />
-          <StatsCard 
-            label="Disk" 
-            value="36.9%" 
-            detail="26.4 GB / 71.7 GB" 
-            color="bg-emerald-500" 
-            icon={<HardDrive size={16} />}
-            progress={36.9}
-          />
-          <StatsCard 
-            label="Network" 
-            value="0.00" 
-            detail="MB/s Up | MB/s Down" 
-            color="bg-slate-500" 
-            icon={<Network size={16} />}
-            progress={0}
-            isNetwork
-          />
-        </section>
+      <ProjectSection title="Infrastructure" theme={theme as string} apps={[
+        { name: "main-proxy", type: "proxy", status: "online", role: "Traefik" },
+        { name: "redis-cache", type: "redis", status: "online", role: "Redis" },
+        { name: "postgres-db", type: "database", status: "online", role: "PostgreSQL" }
+      ]} />
 
-        {/* Projects Layout */}
-        <header className="flex justify-between items-center mb-6">
-          <h2 className="text-2xl font-bold text-slate-900">Projects</h2>
-          <div className="flex items-center space-x-2">
-            <button className="bg-slate-100 text-slate-600 px-3 py-1.5 rounded-lg text-sm font-medium flex items-center space-x-1 hover:bg-slate-200">
-              <Plus size={16} />
-              <span>New</span>
-            </button>
-          </div>
-        </header>
+      <ProjectSection title="Customer Portal" theme={theme as string} apps={[
+        { name: "portal-web", type: "app", status: "online", role: "Next.js" },
+        { name: "portal-api", type: "api", status: "online", role: "Node.js" }
+      ]} />
 
-        <ProjectSection title="Infrastructure" apps={[
-          { name: "main-proxy", type: "proxy", status: "online", role: "Traefik" },
-          { name: "redis-cache", type: "redis", status: "online", role: "Redis" },
-          { name: "postgres-db", type: "database", status: "online", role: "PostgreSQL" }
-        ]} />
-
-        <ProjectSection title="Customer Portal" apps={[
-          { name: "portal-web", type: "app", status: "online", role: "Next.js" },
-          { name: "portal-api", type: "api", status: "online", role: "Node.js" }
-        ]} />
-
-        <ProjectSection title="Internal Tools" apps={[
-          { name: "monitoring", type: "app", status: "degraded", role: "Grafana" }
-        ]} />
-      </main>
-    </div>
+      <ProjectSection title="Internal Tools" theme={theme as string} apps={[
+        { name: "monitoring", type: "app", status: "degraded", role: "Grafana" }
+      ]} />
+    </>
   );
 }
 
@@ -188,7 +126,7 @@ function StatsCard({ label, value, detail, color, icon, progress, isNetwork = fa
 
       <div className="flex-1 text-left">
         <p className="text-[10px] uppercase tracking-wider font-bold text-slate-400 mb-0.5">{label}</p>
-        <p className="text-2xl font-black leading-tight">{value}</p>
+        <p className="text-2xl font-black leading-tight tracking-tight">{value}</p>
         <p className="text-[10px] text-slate-500 font-medium">{detail}</p>
       </div>
 
@@ -210,30 +148,37 @@ function ProjectSection({ title, apps, theme }: { title: string, apps: any[], th
         <Folder size={18} className="text-slate-400" />
         <h3 className={`text-lg font-bold ${theme === 'dark' ? 'text-slate-200' : 'text-slate-800'}`}>{title}</h3>
         <span className={`text-[10px] px-1.5 py-0.5 ${theme === 'dark' ? 'bg-slate-800 text-slate-400' : 'bg-slate-100 text-slate-500'} rounded font-bold`}>{apps.length}</span>
-        <div className={`flex-1 h-[1px] ${theme === 'dark' ? 'bg-slate-800' : 'bg-slate-100'} ml-4 group-hover:bg-slate-200 dark:group-hover:bg-slate-700 transition-colors`} />
-        <Plus size={16} className="text-slate-300 hover:text-slate-600 cursor-pointer" />
+        <div className={`flex-1 h-[1px] ${theme === 'dark' ? 'bg-slate-800' : 'bg-slate-100'} ml-4 group-hover:bg-emerald-500/20 transition-colors`} />
+        <Plus size={16} className="text-slate-400 hover:text-emerald-500 cursor-pointer transition-colors" />
       </div>
       
       <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-4">
         {apps.map((app, i) => (
-          <div key={i} className={`${theme === 'dark' ? 'bg-[#1E293B] border-slate-700 hover:border-slate-500' : 'bg-white border-slate-200 hover:border-slate-300'} p-4 rounded-xl border hover:shadow-sm transition-all cursor-pointer group/app`}>
+          <motion.div 
+            key={i} 
+            whileHover={{ y: -2 }}
+            className={`${theme === 'dark' ? 'bg-[#1E293B] border-slate-700 hover:border-emerald-500/50' : 'bg-white border-slate-200 hover:border-emerald-500/50'} p-4 rounded-xl border hover:shadow-lg hover:shadow-emerald-500/5 transition-all cursor-pointer group/app`}
+          >
             <div className="flex items-center justify-between mb-3">
               <div className="flex items-center space-x-3 text-left">
-                <div className={`w-8 h-8 rounded-lg flex items-center justify-center ${app.status === 'online' ? 'bg-emerald-500/10 text-emerald-500' : 'bg-orange-500/10 text-orange-500'}`}>
-                  <Package size={16} />
+                <div className={`w-10 h-10 rounded-xl flex items-center justify-center ${app.status === 'online' ? 'bg-emerald-500/10 text-emerald-500' : 'bg-orange-500/10 text-orange-500'} group-hover/app:scale-110 transition-transform`}>
+                  <Package size={20} />
                 </div>
                 <div>
                   <p className="text-sm font-bold group-hover/app:text-emerald-500 transition-colors">{app.name}</p>
-                  <p className="text-[10px] text-slate-400 font-medium">{app.role}</p>
+                  <p className="text-[10px] text-slate-400 font-medium uppercase tracking-wider">{app.role}</p>
                 </div>
               </div>
-              <div className={`w-2 h-2 rounded-full ${app.status === 'online' ? 'bg-emerald-500' : 'bg-orange-500'} animate-pulse`} />
+              <div className={`w-2.5 h-2.5 rounded-full ${app.status === 'online' ? 'bg-emerald-500 shadow-[0_0_8px_rgba(16,185,129,0.5)]' : 'bg-orange-500'} animate-pulse`} />
             </div>
-            <div className={`flex justify-between items-center text-[10px] text-slate-400 font-bold border-t ${theme === 'dark' ? 'border-slate-800' : 'border-slate-50'} pt-3`}>
-              <span>UPTIME: 12d 4h</span>
-              <ChevronRight size={14} className="text-slate-300 group-hover/app:text-slate-600 group-hover/app:translate-x-1 transition-all" />
+            <div className={`flex justify-between items-center text-[10px] text-slate-400 font-bold border-t ${theme === 'dark' ? 'border-slate-800' : 'border-slate-50'} pt-3 mt-1`}>
+              <span className="flex items-center space-x-1">
+                <Activity size={10} className="text-emerald-500" />
+                <span>ONLINE</span>
+              </span>
+              <ChevronRight size={14} className="text-slate-300 group-hover/app:text-emerald-500 group-hover/app:translate-x-1 transition-all" />
             </div>
-          </div>
+          </motion.div>
         ))}
       </div>
     </div>
