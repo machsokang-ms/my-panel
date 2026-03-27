@@ -36,8 +36,10 @@ services:
       - my-panel-network
     labels:
       - "traefik.enable=true"
-      - "traefik.http.routers.api.rule=Host(`api.my-panel.local`)" # Change for production
+      - "traefik.http.routers.api.rule=Host(`10.1.2.208`) && PathPrefix(`/api`)"
       - "traefik.http.routers.api.entrypoints=web"
+      - "traefik.http.services.api.loadbalancer.server.port=4000"
+      - "traefik.http.routers.api.priority=10"
 
   # Frontend Web
   web:
@@ -47,8 +49,10 @@ services:
       - my-panel-network
     labels:
       - "traefik.enable=true"
-      - "traefik.http.routers.web.rule=Host(`my-panel.local`)" # Change for production
+      - "traefik.http.routers.web.rule=Host(`10.1.2.208`)"
       - "traefik.http.routers.web.entrypoints=web"
+      - "traefik.http.services.web.loadbalancer.server.port=3000"
+      - "traefik.http.routers.web.priority=5"
 
 networks:
   my-panel-network:
