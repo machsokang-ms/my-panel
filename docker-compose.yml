@@ -1,0 +1,55 @@
+version: '3.8'
+
+services:
+  # Reverse Proxy & SSL
+  traefik:
+    image: traefik:v2.10
+    container_name: my-panel-traefik
+    command:
+      - "--api.insecure=true"
+      - "--providers.docker=true"
+      - "--providers.docker.exposedbydefault=false"
+      - "--entrypoints.web.address=:80"
+      - "--entrypoints.websecure.address=:443"
+      - "--certificatesresolvers.myresolver.acme.tlschallenge=true"
+      - "--certificatesresolvers.myresolver.acme.email=admin@example.com" # Change to your email
+      - "--certificatesresolvers.myresolver.acme.storage=/letsencrypt/acme.json"
+    ports:
+      - "80:80"
+      - "443:443"
+      - "8080:8080" # Dashboard
+    volumes:
+      - "/var/run/docker.sock:/var/run/docker.sock:ro"
+      - "./letsencrypt:/letsencrypt"
+    networks:
+      - my-panel-network
+
+  # Backend API
+  api:
+    build: ./backend
+    container_name: my-panel-api
+    volumes:
+      - "/var/run/docker.sock:/var/run/docker.sock"
+    environment:
+      - PORT=4000
+    networks:
+      - my-panel-network
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.api.rule=Host(`api.my-panel.local`)" # Change for production
+      - "traefik.http.routers.api.entrypoints=web"
+
+  # Frontend Web
+  web:
+    build: ./frontend
+    container_name: my-panel-web
+    networks:
+      - my-panel-network
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.web.rule=Host(`my-panel.local`)" # Change for production
+      - "traefik.http.routers.web.entrypoints=web"
+
+networks:
+  my-panel-network:
+    driver: bridge
