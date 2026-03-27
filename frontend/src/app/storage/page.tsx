@@ -291,29 +291,6 @@ export default function StoragePage() {
   );
 }
 
-      {/* Credential Setup UI Preview */}
-      <section className={`p-8 rounded-3xl border border-dashed ${theme === 'dark' ? 'bg-slate-900/50 border-slate-700' : 'bg-emerald-50/30 border-emerald-200'} flex flex-col items-center text-center`}>
-        <div className="w-16 h-16 bg-white dark:bg-slate-800 rounded-2xl shadow-xl flex items-center justify-center mb-6">
-          <Key size={32} className="text-emerald-500" />
-        </div>
-        <h3 className="text-xl font-bold mb-2">Connect S3 Keys</h3>
-        <p className="text-slate-400 text-sm max-w-md mb-8">
-          Enter your Access Key and Secret Key to allow automated backups and data storage for your deployed applications.
-        </p>
-        <div className="flex space-x-4">
-          <button className="px-6 py-2.5 bg-slate-900 dark:bg-slate-100 dark:text-slate-900 text-white rounded-xl text-sm font-bold hover:opacity-90 transition-opacity">
-            Start Configuration
-          </button>
-          <button className="px-6 py-2.5 border border-slate-200 dark:border-slate-700 rounded-xl text-sm font-bold flex items-center space-x-2 hover:bg-white dark:hover:bg-slate-800 transition-all">
-            <ExternalLink size={16} />
-            <span>MinIO Documentation</span>
-          </button>
-        </div>
-      </section>
-    </div>
-  );
-}
-
 function StorageStat({ label, value, icon, color = "text-slate-900 dark:text-white" }: { label: string, value: string, icon: React.ReactNode, color?: string }) {
   const { theme } = useTheme();
   return (
