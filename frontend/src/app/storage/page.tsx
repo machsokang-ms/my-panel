@@ -10,7 +10,7 @@ import {
   ExternalLink, 
   Search,
   MoreHorizontal,
-  CloudCloud,
+  Cloud,
   Layers,
   Settings,
   Lock,
